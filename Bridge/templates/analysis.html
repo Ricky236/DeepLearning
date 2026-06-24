@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+{% block head %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+{% endblock %}
+{% block content %}
+  <div class="grid12" style="margin-bottom:20px">
+    <div class="card" style="grid-column:span 12;min-height:220px">
+      <div class="card-head" style="justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div class="card-title">个人病害分析</div>
+        <div class="row" style="gap:10px">
+          <select class="select" id="anaDays" style="min-width:160px">
+            <option value="7">最近 7 天</option>
+            <option value="30" selected>最近 30 天</option>
+            <option value="90">最近 90 天</option>
+            <option value="365">最近 1 年</option>
+          </select>
+          <select class="select" id="anaModel" style="min-width:180px">
+            <option value="">全部模型</option>
+          </select>
+          <select class="select" id="anaClass" style="min-width:160px">
+            <option value="">全部类型</option>
+          </select>
+          <button class="btn btn-outline" id="anaRefresh" type="button">刷新</button>
+          <button class="btn btn-primary" id="anaExport" type="button">导出</button>
+        </div>
+      </div>
+
+      <div class="stat-grid" style="grid-template-columns:repeat(4, minmax(160px, 1fr));width:100%">
+        <div class="stat" style="width:auto">
+          <div class="k">检测次数</div>
+          <div class="v" id="anaRuns">-</div>
+        </div>
+        <div class="stat" style="width:auto">
+          <div class="k">病害总数</div>
+          <div class="v" id="anaDefects">-</div>
+        </div>
+        <div class="stat" style="width:auto">
+          <div class="k">平均耗时</div>
+          <div class="v" id="anaAvgMs">-</div>
+        </div>
+        <div class="stat" style="width:auto">
+          <div class="k">使用模型数</div>
+          <div class="v" id="anaModels">-</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid12">
+    <div class="card" style="grid-column:span 8;min-height:420px">
+      <div class="card-head"><div class="card-title">趋势（次数 / 病害总数）</div></div>
+      <div style="height:320px"><canvas id="anaTrend"></canvas></div>
+    </div>
+    <div class="card" style="grid-column:span 4;min-height:420px">
+      <div class="card-head"><div class="card-title">模型使用次数（Top10）</div></div>
+      <div style="height:320px"><canvas id="anaByModel"></canvas></div>
+    </div>
+
+    <div class="card" style="grid-column:span 12;min-height:420px">
+      <div class="card-head"><div class="card-title">病害类型分布（Top12）</div></div>
+      <div style="height:320px"><canvas id="anaByClass"></canvas></div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="/static/js/analysis.js"></script>
+{% endblock %}
+

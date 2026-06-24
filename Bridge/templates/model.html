@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+{% block head %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <style>
+    /* Model page: make the two info cards compact */
+    .model-compact { min-height: 220px; }
+    #classTags {
+      align-items: center;
+      flex-wrap: nowrap;           /* single line */
+      overflow-x: auto;            /* scroll when overflow */
+      overflow-y: hidden;
+      white-space: nowrap;
+      gap: 10px;
+      padding: 2px 6px 6px 2px;    /* space for scrollbar */
+    }
+  </style>
+{% endblock %}
+{% block content %}
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-head">
+      <div class="card-title">模型指标对比</div>
+      <div style="color:var(--text2);font-size:13px">对比 8 个模型的关键精度指标</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="min-width:120px">模型</th>
+            <th>Box P</th>
+            <th>Box R</th>
+            <th>Box mAP50</th>
+            <th>Box mAP50-95</th>
+            <th>Mask P</th>
+            <th>Mask R</th>
+            <th>Mask mAP50</th>
+            <th>Mask mAP50-95</th>
+          </tr>
+        </thead>
+        <tbody id="modelsCompareBody">
+          <tr><td colspan="9" style="color:var(--text2)">加载中…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-head">
+      <div class="card-title">当前模型</div>
+      <select id="modelSelectInfo" class="select" style="min-width:280px">
+        <option value="">加载中…</option>
+      </select>
+    </div>
+
+    <div class="grid12" style="margin-top:10px">
+      <div class="card" style="grid-column:span 4;min-height:120px">
+        <div style="color:var(--text2);font-size:14px">Box mAP50</div>
+        <div style="font-size:26px;font-weight:900;margin-top:10px" id="mBoxMAP">—</div>
+      </div>
+      <div class="card" style="grid-column:span 4;min-height:120px">
+        <div style="color:var(--text2);font-size:14px">Mask mAP50</div>
+        <div style="font-size:26px;font-weight:900;margin-top:10px" id="mMaskMAP">—</div>
+      </div>
+      <div class="card" style="grid-column:span 4;min-height:120px">
+        <div style="color:var(--text2);font-size:14px">训练轮次</div>
+        <div style="font-size:26px;font-weight:900;margin-top:10px" id="mEpochs">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div class="card-title">训练曲线</div></div>
+    <div class="grid12">
+      <div class="card" style="grid-column:span 6;min-height:320px"><canvas id="chartMAP"></canvas></div>
+      <div class="card" style="grid-column:span 6;min-height:320px"><canvas id="chartLoss"></canvas></div>
+      <div class="card" style="grid-column:span 6;min-height:260px;padding:0;overflow:hidden"><img src="" alt="confusion matrix"/></div>
+      <div class="card" style="grid-column:span 6;min-height:260px;padding:0;overflow:hidden"><img src="" alt="confusion matrix normalized"/></div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="/static/js/model.js"></script>
+{% endblock %}
+

@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+{% block head %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+{% endblock %}
+{% block content %}
+  <div class="grid12" style="margin-bottom:20px">
+    <div class="card" style="grid-column:span 8;min-height:420px">
+      <div class="card-head">
+        <div class="card-title">检测概览（近 30 天）</div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><div class="k">检测次数</div><div class="v" id="kpiRuns">-</div></div>
+        <div class="stat"><div class="k">病害总数</div><div class="v" id="kpiDefects">-</div></div>
+        <div class="stat"><div class="k">平均耗时</div><div class="v" id="kpiAvgMs">-</div></div>
+        <div class="stat"><div class="k">使用模型数</div><div class="v" id="kpiModels">-</div></div>
+      </div>
+      <div style="margin-top:18px;color:var(--text2);font-size:14px">趋势（次数 / 病害总数）</div>
+      <div style="height:250px;margin-top:10px">
+        <canvas id="chartTrend"></canvas>
+      </div>
+    </div>
+    <div class="card" style="grid-column:span 4;min-height:420px">
+      <div class="card-head"><div class="card-title">近期检测</div></div>
+      <div style="margin-top:14px" class="table-wrap">
+        <table>
+          <thead><tr><th>时间</th><th>模型</th><th>病害总数</th><th>耗时</th></tr></thead>
+          <tbody id="recentBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid12">
+    <div class="card" style="grid-column:span 6;min-height:420px">
+      <div class="card-head"><div class="card-title">病害分布（Top10）</div></div>
+      <div style="height:330px">
+        <canvas id="chartByClass"></canvas>
+      </div>
+    </div>
+    <div class="card" style="grid-column:span 6;min-height:420px">
+      <div class="card-head"><div class="card-title">模型使用次数（Top8）</div></div>
+      <div style="height:330px">
+        <canvas id="chartByModel"></canvas>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="/static/js/dashboard.js"></script>
+{% endblock %}
+

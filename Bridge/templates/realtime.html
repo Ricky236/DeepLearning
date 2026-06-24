@@ -1,0 +1,144 @@
+{% extends "layout.html" %}
+{% block head %}
+  <link rel="stylesheet" href="/static/css/style.css"/>
+{% endblock %}
+{% block content %}
+  <div class="page-realtime">
+  <div class="card realtime-controls">
+    <div class="row" style="justify-content:space-between">
+      <div class="row">
+        <div>
+          <div style="color:var(--text2);font-size:14px;margin-bottom:6px">模型版本（可多选）</div>
+          <div class="multi-select" id="modelSelectWrap" style="width:420px">
+            <button class="multi-select-btn" id="modelSelectBtn" type="button">请选择</button>
+            <div class="multi-select-panel" id="modelSelectPanel" style="display:none">
+              <div class="multi-select-items" id="modelSelectItems">
+                <div class="multi-select-empty">加载中…</div>
+              </div>
+              <div class="multi-select-actions">
+                <button class="btn btn-outline" id="modelSelectAllBtn" type="button">全选</button>
+                <button class="btn btn-outline" id="modelSelectClearBtn" type="button">清空</button>
+                <button class="btn btn-primary" id="modelSelectOkBtn" type="button">确定</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label>置信度阈值：<span class="range-val" id="confVal">0.25</span></label>
+          <input type="range" id="confSlider" min="0.05" max="0.95" step="0.05" value="0.25"/>
+        </div>
+
+        <div class="control-group">
+          <label>IoU 阈值：<span class="range-val" id="iouVal">0.45</span></label>
+          <input type="range" id="iouSlider" min="0.1" max="0.9" step="0.05" value="0.45"/>
+        </div>
+
+        <div class="control-group" style="min-width:220px">
+          <label>像素-物理系数：<span class="range-val">mm/px</span></label>
+          <input class="input" id="mmPerPixel" inputmode="decimal" placeholder="例如 0.10" style="min-height:38px;width:200px"/>
+        </div>
+      </div>
+
+      <div class="row" style="gap:8px">
+        <button class="btn btn-outline" id="newUploadBtn" type="button">上传新图片</button>
+        <button class="btn btn-primary" id="detectBtn" type="button">开始检测</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="detect-wrap">
+    <div>
+      <div class="viewer">
+        <div class="upload-zone" id="uploadZone" style="width:100%;height:100%;display:flex;flex-direction:column;justify-content:center">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:56px;height:56px;margin:0 auto 12px;color:var(--primary)"><path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M2 17v1a4 4 0 0 0 4 4h12a4 4 0 0 0 4-4v-1"/></svg>
+          <h3 style="text-align:center;font-size:18px">拖拽文件到此处或点击上传</h3>
+          <p style="text-align:center;color:var(--text2);font-size:14px;margin-top:6px">支持图片与视频（JPG/PNG/BMP/WebP/MP4），最大 200 MB</p>
+          <input type="file" id="fileInput" accept="image/*,video/*" multiple/>
+        </div>
+        <img id="liveImg" alt="preview"/>
+        <video id="liveVideo" controls playsinline muted style="display:none;width:100%;height:100%;object-fit:contain"></video>
+      </div>
+
+      <div class="preview-strip" id="previewStrip" style="display:none"></div>
+    </div>
+
+    <div class="sidepanel">
+      <div class="row sidepanel-head" style="justify-content:space-between;margin-bottom:10px">
+        <div class="ui-aside-title">病害统计</div>
+        <div class="row sidepanel-actions" style="gap:8px">
+          <button class="btn" id="queueStopBtn" type="button">停止队列</button>
+          <button class="btn" id="queueClearBtn" type="button">清空队列</button>
+        </div>
+      </div>
+      <div style="color:var(--text2);font-size:14px;margin-bottom:10px" id="queueInfo">队列：0</div>
+      <div id="statsRow"></div>
+      <div class="class-catalog" id="classCatalog" aria-label="完整类别清单"></div>
+      <div class="infer-meta" id="inferenceMeta" aria-label="检测元信息">
+        <div class="infer-chip" title="图像尺寸">
+          <div class="infer-k">图像尺寸</div>
+          <div class="infer-v" id="inferSize">-</div>
+        </div>
+        <div class="infer-chip" title="检测目标数">
+          <div class="infer-k">检测目标</div>
+          <div class="infer-v" id="inferTotal">-</div>
+        </div>
+        <div class="infer-chip" title="耗时">
+          <div class="infer-k">耗时</div>
+          <div class="infer-v" id="inferMs">-</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="spinner" id="spinner" style="margin-top:8px">
+    <div class="ring"></div>
+    <p>模型推理中，请稍候…</p>
+  </div>
+
+  <div class="card" id="resultArea" style="display:none;margin-top:20px">
+    <div class="row" style="justify-content:space-between;margin-bottom:12px;align-items:center;flex-wrap:wrap;gap:8px">
+      <div>
+        <div class="ui-section-title">检测结果</div>
+        <div style="color:var(--text2);font-size:13px;margin-top:4px" id="resultTaskHint"></div>
+      </div>
+      <a class="btn" id="openResultsBtn" href="/results" style="display:inline-flex;align-items:center">打开结果页</a>
+    </div>
+    <div class="result-images">
+      <div class="img-box">
+        <span class="img-label">原始图像</span>
+        <img id="origImg" src="" alt="original"/>
+      </div>
+      <div class="img-box">
+        <span class="img-label">检测结果</span>
+        <img id="resImg" src="" alt="result"/>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="det-table">
+        <thead><tr><th>#</th><th>病害类型</th><th>英文名</th><th>置信度</th><th>长度/最大宽度(mm)</th><th>位置</th></tr></thead>
+        <tbody id="detBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card" id="compareArea" style="display:none;margin-top:20px">
+    <div class="row" style="justify-content:space-between;margin-bottom:12px">
+      <div class="ui-section-title">多模型对比</div>
+      <div style="color:var(--text2);font-size:14px" id="compareInfo"></div>
+    </div>
+    <div class="table-wrap" style="margin-bottom:14px">
+      <table class="det-table" id="compareTable">
+        <thead id="compareHead"></thead>
+        <tbody id="compareBody"></tbody>
+      </table>
+    </div>
+    <div class="compare-grid" id="compareGrid"></div>
+  </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="/static/js/app.js"></script>
+{% endblock %}
+

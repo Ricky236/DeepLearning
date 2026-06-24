@@ -1,0 +1,91 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="grid12">
+    <div class="card results-sidebar" style="grid-column:span 4;min-height:600px">
+      <div class="card-head" style="justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div>
+          <div class="card-title">结果列表</div>
+          <div style="color:var(--text2);font-size:13px" id="historyHint"></div>
+        </div>
+      </div>
+
+      <div class="results-filters">
+        <div class="results-filters__row">
+          <input class="input" id="histQ" placeholder="关键词（模型/类型）"/>
+        </div>
+        <div class="results-filters__row results-filters__row--2">
+          <select class="select" id="histClass">
+          <option value="">全部类型</option>
+          <option value="裂缝">裂缝</option>
+          <option value="钢筋外露">钢筋外露</option>
+          <option value="剥落">剥落</option>
+          <option value="破损">破损</option>
+          <option value="白华">白华</option>
+          </select>
+          <select class="select" id="histSort">
+          <option value="ts_desc">时间↓</option>
+          <option value="ts_asc">时间↑</option>
+          <option value="total_desc">数量↓</option>
+          <option value="total_asc">数量↑</option>
+          <option value="ms_desc">耗时↓</option>
+          <option value="ms_asc">耗时↑</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="results-actions">
+        <button class="btn btn-outline" id="btnExport" type="button">导出</button>
+        <button class="btn btn-outline" id="btnDelete" type="button">删除</button>
+        <button class="btn" id="btnReanalyze" type="button">再次分析</button>
+        <a class="btn btn-primary" id="btnReport" href="/reports">生成报告</a>
+      </div>
+
+      <div class="table-wrap" style="margin-bottom:14px;max-height:260px">
+        <table>
+          <thead><tr><th style="width:34px"><input type="checkbox" id="histSelAll"/></th><th>时间</th><th>模型</th><th>总数</th></tr></thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+      </div>
+
+      <div class="card-head" style="padding-top:0">
+        <div class="card-title">结果概览</div>
+        <div style="color:var(--text2);font-size:13px" id="resultMeta"></div>
+      </div>
+      <div style="color:var(--text2);font-size:13px;margin:-6px 0 10px" id="resultParams"></div>
+      <div class="table-wrap" style="margin-bottom:14px">
+        <table>
+          <thead><tr><th>病害</th><th>数量</th></tr></thead>
+          <tbody id="statsBody"></tbody>
+        </table>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>序号</th><th>类型</th><th>置信度</th><th>长度/最大宽度(mm)</th></tr></thead>
+          <tbody id="detList"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" style="grid-column:span 8;min-height:600px">
+      <div class="card-head">
+        <div class="card-title">结果详情</div>
+        <div class="row">
+          <button class="btn" id="btnReset" type="button">重置</button>
+          <button class="btn" id="btnFit" type="button">适配</button>
+          <button class="btn" id="btnToggle" type="button">切换原图/结果</button>
+          <button class="btn btn-outline" id="btnDownloadResult" type="button">导出结果图</button>
+        </div>
+      </div>
+      <div id="viewer" style="height:480px;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--muted);position:relative">
+        <img id="viewerImg" alt="viewer" style="position:absolute;left:0;top:0;transform-origin:0 0;user-select:none;cursor:grab"/>
+        <canvas id="viewerCanvas" style="position:absolute;left:0;top:0;transform-origin:0 0;pointer-events:none"></canvas>
+      </div>
+      <div style="color:var(--text2);font-size:14px;margin-top:10px" id="viewerHint">滚轮缩放，按住拖拽移动</div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="/static/js/results.js"></script>
+{% endblock %}
+

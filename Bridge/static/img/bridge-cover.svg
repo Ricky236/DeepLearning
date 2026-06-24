@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#007BFF" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#007BFF" stop-opacity="0.02"/>
+    </linearGradient>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#F5F5F5"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <rect x="0" y="0" width="1600" height="900" fill="url(#g1)"/>
+  <path d="M0 640 C 320 520, 520 520, 800 640 C 1080 760, 1280 760, 1600 640 L1600 900 L0 900 Z" fill="#EAF2FF"/>
+  <path d="M120 650 H1480" stroke="#0B5ED7" stroke-opacity="0.35" stroke-width="10" stroke-linecap="round"/>
+  <path d="M220 650 V520 M1380 650 V520" stroke="#0B5ED7" stroke-opacity="0.35" stroke-width="12" stroke-linecap="round"/>
+  <path d="M220 520 C 520 380, 1080 380, 1380 520" fill="none" stroke="#007BFF" stroke-opacity="0.55" stroke-width="12" stroke-linecap="round"/>
+  <path d="M340 640 L 620 460 M1260 640 L 980 460" stroke="#007BFF" stroke-opacity="0.35" stroke-width="8" stroke-linecap="round"/>
+  <g fill="#0f172a" fill-opacity="0.25">
+    <circle cx="1260" cy="220" r="34"/>
+    <circle cx="1310" cy="220" r="28"/>
+    <circle cx="1360" cy="220" r="22"/>
+  </g>
+  <text x="70" y="120" font-family="Segoe UI, Arial" font-size="44" font-weight="700" fill="#0f172a" fill-opacity="0.25">�:e�ho`M	</text>
+</svg>

@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="card">
+    <div class="row" style="justify-content:space-between;margin-bottom:12px">
+      <div class="row">
+        <select class="select"><option>全部类型</option></select>
+        <select class="select"><option>全部日期</option></select>
+      </div>
+      <button class="btn btn-primary" type="button" style="width:120px">上传</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(6,160px);gap:14px">
+      {% for i in range(18) %}
+      <div style="width:160px">
+        <div style="height:90px;background:var(--muted);border:1px solid var(--border);border-radius:8px"></div>
+        <div style="margin-top:8px;color:var(--text2);font-size:12px">IMG_{{ i+1 }}.jpg</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}
+

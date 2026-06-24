@@ -1,0 +1,101 @@
+{% extends "layout.html" %}
+{% block head %}
+  <link rel="stylesheet" href="/static/css/reports.css"/>
+  {# 不用 url_for：避免部分环境下 endpoint 未注册导致 BuildError；script_root 支持子路径挂载 #}
+  {% set _sr = (request.script_root or "") %}
+  {% set _export = (_sr ~ "/api/reports/export") | replace("//", "/") %}
+  {% set _export_fb = (_sr ~ "/reports/api/export") | replace("//", "/") %}
+  <script>
+    window.__REPORT_EXPORT_URL__ = {{ _export | tojson }};
+    window.__REPORT_EXPORT_FALLBACK_URL__ = {{ _export_fb | tojson }};
+  </script>
+{% endblock %}
+{% block content %}
+  <div class="grid12">
+    <div class="card" style="grid-column:span 8">
+      <div class="row" style="justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:10px;align-items:center">
+        <div class="card-title">报告预览</div>
+        <div class="row reports-export-bar" style="gap:8px;flex-wrap:wrap">
+          <button class="btn" id="btnFillDemo" type="button">填充示例</button>
+          <button class="btn btn-primary" id="btnExportDocx" type="button">Word</button>
+          <button class="btn btn-primary" id="btnExportPdf" type="button">PDF</button>
+          <button class="btn btn-primary" id="btnExportMd" type="button">Markdown</button>
+        </div>
+      </div>
+      <p class="reports-lead">在右侧勾选记录并点击「<strong>更新报告预览</strong>」后，可导出 <strong>Word（.docx）</strong>、<strong>PDF</strong> 或 <strong>Markdown（.md）</strong>。</p>
+
+      <div class="report-preview" id="reportPreview">
+        <article class="report-sheet" id="reportSheet">
+          <header class="rs-header">
+            <h1 class="rs-title">桥梁表观病害检测报告</h1>
+            <dl class="rs-meta">
+              <div><dt>检测时间</dt><dd id="rMetaTime">-</dd></div>
+              <div><dt>使用模型</dt><dd id="rMetaModel">-</dd></div>
+              <div><dt>病害总数</dt><dd id="rMetaTotal">-</dd></div>
+              <div><dt>平均置信度</dt><dd id="rMetaConf">-</dd></div>
+              <div><dt>推理耗时</dt><dd id="rMetaMs">-</dd></div>
+            </dl>
+          </header>
+
+          <section class="rs-block">
+            <h2 class="rs-h2">一、检测概要</h2>
+            <div class="rs-summary" id="rSummaryRoot">
+              <p class="rs-summary-lead" id="rSummaryLead">请在右侧勾选历史记录并点击「更新报告预览」，或点击「填充示例」查看版式。</p>
+              <div class="rs-summary-cards" id="rSummaryCards"></div>
+            </div>
+          </section>
+
+          <section class="rs-block">
+            <h2 class="rs-h2">二、病害分类统计</h2>
+            <ul class="rs-list" id="rCategoryList"></ul>
+          </section>
+
+          <section class="rs-block">
+            <h2 class="rs-h2">三、现场图像</h2>
+            <div class="rs-figures-multi" id="rFiguresMulti"></div>
+            <p class="rs-figures-note" id="rFiguresNote" hidden></p>
+          </section>
+
+          <section class="rs-block">
+            <h2 class="rs-h2">四、病害明细</h2>
+            <div class="rs-tablewrap">
+              <table class="rs-table">
+                <thead>
+                  <tr><th>序号</th><th>来源</th><th>病害类型</th><th>置信度</th><th>备注</th></tr>
+                </thead>
+                <tbody id="rDetRows"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <footer class="rs-footer">
+            <span id="rFooterLine">本报告由系统自动生成，具体以现场复核为准。</span>
+            <span class="rs-footer-time" id="rFooterGenerated">报告生成时间：-</span>
+          </footer>
+        </article>
+      </div>
+    </div>
+
+    <div class="card reports-sidebar" style="grid-column:span 4">
+      <div class="card-title" style="margin-bottom:10px">数据来源</div>
+      <p style="color:var(--text2);font-size:13px;line-height:1.6;margin:0 0 10px">勾选多条可<strong>合并</strong>为一份报告（统计累加、图像按记录分组展示）。</p>
+      <div class="history-toolbar">
+        <button class="btn" id="btnHistorySelectAll" type="button">全选</button>
+        <button class="btn" id="btnHistoryClearSel" type="button">全不选</button>
+        <button class="btn" id="btnHistoryRefresh" type="button">刷新</button>
+      </div>
+      <div class="history-list-scroll" id="historyListScroll" role="listbox" aria-label="历史检测记录">
+        <div class="history-list" id="historyList"></div>
+      </div>
+      <button class="btn btn-primary" id="btnApplyHistory" type="button" style="width:100%;margin-top:12px">更新报告预览</button>
+      <div id="historyHint" class="history-hint"></div>
+      <p class="history-footnote">
+        登录后可读取账号内保存的检测历史；未登录时尝试读取本机缓存。列表可上下滑动浏览。
+      </p>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="/static/js/reports.js"></script>
+{% endblock %}

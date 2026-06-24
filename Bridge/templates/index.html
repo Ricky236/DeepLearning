@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>桥梁表观病害智能检测平台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body class="page-detect">
+
+
+<nav class="navbar">
+  <div class="logo">
+    桥梁病害智能检测
+  </div>
+  <div class="nav-center">
+    <div class="nav-links nav-main">
+      <a href="/" class="active">首页</a>
+      <a href="/detect">病害检测</a>
+      <a href="/realtime">实时监测</a>
+      <a href="/results">检测结果</a>
+      <a href="/analysis">病害分析</a>
+      <a href="/reports">报告生成</a>
+      <a href="/history">个人中心</a>
+    </div>
+  </div>
+  <div class="nav-links nav-auth">
+    <a href="/login" id="navLogin">登录</a>
+    <a href="/register" id="navRegister">注册</a>
+    <a href="javascript:void(0)" id="navUser" style="display:none"></a>
+    <a href="javascript:void(0)" id="navLogout" style="display:none">退出</a>
+  </div>
+</nav>
+
+
+<section class="section">
+  <div class="container">
+    <h2 class="section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12Z"/></svg>
+      智能检测
+    </h2>
+
+    
+    <div class="upload-zone" id="uploadZone">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M2 17v1a4 4 0 0 0 4 4h12a4 4 0 0 0 4-4v-1"/></svg>
+      <h3>拖拽图片到此处或点击上传</h3>
+      <p>支持 JPG / PNG / BMP / WebP，最大 50 MB</p>
+      <input type="file" id="fileInput" accept="image/*" multiple/>
+    </div>
+
+    
+    <div class="preview-strip" id="previewStrip" style="display:none"></div>
+
+    
+    <div class="controls-row" id="controls">
+      <div class="control-group" style="min-width:240px;flex:1.2">
+        <label>模型版本（可多选）</label>
+        <div class="multi-select" id="modelSelectWrap">
+          <button class="multi-select-btn" id="modelSelectBtn" type="button">请选择</button>
+          <div class="multi-select-panel" id="modelSelectPanel" style="display:none">
+            <div class="multi-select-items" id="modelSelectItems">
+              <div class="multi-select-empty">加载中…</div>
+            </div>
+            <div class="multi-select-actions">
+              <button class="btn btn-outline" id="modelSelectAllBtn" type="button">全选</button>
+              <button class="btn btn-outline" id="modelSelectClearBtn" type="button">清空</button>
+              <button class="btn btn-primary" id="modelSelectOkBtn" type="button">确定</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="control-group">
+        <label>置信度阈值：<span class="range-val" id="confVal">0.25</span></label>
+        <input type="range" id="confSlider" min="0.05" max="0.95" step="0.05" value="0.25"/>
+      </div>
+      <div class="control-group">
+        <label>IoU 阈值：<span class="range-val" id="iouVal">0.45</span></label>
+        <input type="range" id="iouSlider" min="0.1" max="0.9" step="0.05" value="0.45"/>
+      </div>
+      <div class="control-group" style="flex:0 0 auto">
+        <button class="btn btn-primary" id="detectBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+          开始检测
+        </button>
+      </div>
+    </div>
+
+    
+    <div class="spinner" id="spinner">
+      <div class="ring"></div>
+      <p>模型推理中，请稍候…</p>
+    </div>
+
+    
+    <div class="result-area" id="resultArea" style="display:none">
+      
+      <div class="stats-row" id="statsRow"></div>
+
+      
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="tabImages">检测结果</button>
+        <button class="tab-btn" data-tab="tabTable">病害列表</button>
+      </div>
+
+      <div class="tab-panel active" id="tabImages">
+        <div class="result-images">
+          <div class="img-box">
+            <span class="img-label">原始图像</span>
+            <img id="origImg" src="" alt="original"/>
+          </div>
+          <div class="img-box">
+            <span class="img-label">检测结果</span>
+            <img id="resImg" src="" alt="result"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tabTable">
+        <div class="card" style="overflow-x:auto">
+          <table class="det-table">
+            <thead><tr><th>#</th><th>病害类型</th><th>英文名</th><th>置信度</th><th>位置 (x1,y1,x2,y2)</th></tr></thead>
+            <tbody id="detBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <p style="margin-top:16px;color:var(--text-sec);font-size:.85rem" id="inferenceInfo"></p>
+    </div>
+
+    
+    <div class="result-area" id="compareArea" style="display:none">
+      <div class="card" style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
+          <div class="editorial-subhead">多模型对比结果</div>
+          <div style="color:var(--text-sec);font-size:.85rem" id="compareInfo"></div>
+        </div>
+      </div>
+      <div class="card" style="overflow-x:auto;margin-bottom:14px">
+        <table class="det-table" id="compareTable">
+          <thead id="compareHead"></thead>
+          <tbody id="compareBody"></tbody>
+        </table>
+      </div>
+      <div class="compare-grid" id="compareGrid"></div>
+    </div>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <p>桥梁表观病害智能检测平台 &copy; 2026 钱途无量队 &mdash; Powered by Ultralytics YOLO &amp; Flask</p>
+</footer>
+
+
+<div class="toast" id="toast"></div>
+
+<script src="/static/js/app.js"></script>
+<script src="/static/js/auth-nav.js"></script>
+<script src="/static/js/nav-indicator.js"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+{"model_id": "model1.0", "model_label": "model1.0", "original_url": "/uploads/4c473db59fc8.jpg", "image_url": "/results/4c473db59fc8_result.jpg", "result_url": "/results/4c473db59fc8_result.jpg", "mm_per_pixel": 40.0, "detections": [], "stats": {}, "total": 0, "inference_ms": 317.7, "forward_ms": 213.5, "image_size": {"width": 2736, "height": 1824}}

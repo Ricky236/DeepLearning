@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="card">
+    <div class="row" style="justify-content:space-between;margin-bottom:12px">
+      <div class="row">
+        <input class="input" style="width:320px" placeholder="搜索任务"/>
+        <select class="select"><option>全部状态</option></select>
+      </div>
+      <button class="btn btn-primary" type="button">新建任务</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>任务名</th><th>桥梁名称</th><th>地点</th><th>数据大小</th><th>状态</th><th>创建时间</th><th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>巡检_20231120</td><td>XX大桥</td><td>XX市</td><td>32.6 GB</td><td>已完成</td><td>2023-11-20</td><td>编辑 / 删除 / 开始</td></tr>
+          <tr><td>巡检_20231118</td><td>YY大桥</td><td>YY市</td><td>24.1 GB</td><td>进行中</td><td>2023-11-18</td><td>编辑 / 删除 / 开始</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}
+

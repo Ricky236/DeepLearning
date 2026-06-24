@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>注册 - 桥梁表观病害智能检测平台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="logo" onclick="location.href='/'" style="cursor:pointer">
+    桥梁病害智能检测
+  </div>
+  <div class="nav-center">
+    <div class="nav-links nav-main">
+      <a href="/">首页</a>
+      <a href="/detect">病害检测</a>
+      <a href="/realtime">实时监测</a>
+      <a href="/results">检测结果</a>
+      <a href="/analysis">病害分析</a>
+      <a href="/reports">报告生成</a>
+      <a href="/history">个人中心</a>
+    </div>
+  </div>
+  <div class="nav-links nav-auth">
+    <a href="/login">登录</a>
+    <a href="/register" class="active">注册</a>
+  </div>
+</nav>
+
+<section class="section">
+  <div class="container" style="max-width:720px">
+    <div class="card">
+      <h2 style="font-size:1.35rem;margin-bottom:10px">注册</h2>
+      <p style="color:var(--text-sec);margin-bottom:18px">注册后可保存检测记录到账号历史。</p>
+
+      <div class="form-row">
+        <div class="control-group" style="margin:0;flex:1">
+          <label>用户名（3-32 位）</label>
+          <input id="username" class="input" placeholder="例如：bridge_user"/>
+        </div>
+        <div class="control-group" style="margin:0;flex:1">
+          <label>密码（6-64 位）</label>
+          <input id="password" class="input" type="password" placeholder="至少 6 位"/>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:14px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-primary" id="registerBtn">注册</button>
+        <a class="btn btn-outline" href="/login" style="text-decoration:none">登录</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script src="/static/js/register.js"></script>
+<script src="/static/js/nav-indicator.js"></script>
+</body>
+</html>
+

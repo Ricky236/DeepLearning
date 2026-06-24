@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="grid12">
+    <div class="card" style="grid-column:span 4">
+      <div class="card-title" style="margin-bottom:10px">桥梁图片</div>
+      <div style="width:300px;height:200px;background:var(--muted);border:1px solid var(--border);border-radius:8px"></div>
+    </div>
+    <div class="card" style="grid-column:span 8">
+      <div class="card-title" style="margin-bottom:10px">桥梁信息</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>字段</th><th>内容</th></tr></thead>
+          <tbody>
+            <tr><td>桥梁名称</td><td>XX大桥</td></tr>
+            <tr><td>位置</td><td>XX市</td></tr>
+            <tr><td>建成年份</td><td>2012</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card" style="grid-column:span 6">
+      <div class="card-title" style="margin-bottom:10px">历史检测</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>时间</th><th>结果</th></tr></thead>
+          <tbody><tr><td>2023-11-20</td><td>裂缝 12</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card" style="grid-column:span 6">
+      <div class="card-title" style="margin-bottom:10px">更多信息</div>
+      <div style="height:220px;background:var(--muted);border:1px solid var(--border);border-radius:8px"></div>
+    </div>
+  </div>
+{% endblock %}
+

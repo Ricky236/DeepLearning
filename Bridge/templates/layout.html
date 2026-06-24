@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>{{ title or "桥梁表观病害智能检测平台" }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/static/css/ui.css"/>
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <div class="brand-mini">菜单</div>
+      <button class="collapse-btn" id="sidebarCollapseBtn" type="button" aria-label="折叠菜单">≡</button>
+    </div>
+    <nav class="menu">
+      <a class="menu-item {{ 'active' if active_menu=='dashboard' else '' }}" href="/"><span class="micon">▦</span><span class="label">首页</span></a>
+      <a class="menu-item {{ 'active' if active_menu=='detect' else '' }}" href="/detect"><span class="micon">▤</span><span class="label">病害检测</span></a>
+      <a class="menu-item {{ 'active' if active_menu=='realtime' else '' }}" href="/realtime"><span class="micon">⏵</span><span class="label">实时监测</span></a>
+      <a class="menu-item {{ 'active' if active_menu=='results' else '' }}" href="/results"><span class="micon">▣</span><span class="label">检测结果</span></a>
+      <a class="menu-item {{ 'active' if active_menu=='analysis' else '' }}" href="/analysis"><span class="micon">▧</span><span class="label">病害分析</span></a>
+      <a class="menu-item {{ 'active' if active_menu=='model' else '' }}" href="/model-info"><span class="micon">▩</span><span class="label">模型信息</span></a>
+      <a class="menu-item {{ 'active' if active_menu=='reports' else '' }}" href="/reports"><span class="micon">⎙</span><span class="label">报告生成</span></a>
+      <a class="menu-item {{ 'active' if active_menu=='profile' else '' }}" href="/history"><span class="micon">◉</span><span class="label">个人中心</span></a>
+    </nav>
+  </aside>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="brand" onclick="location.href='/'" style="cursor:pointer">
+        <div class="title">桥梁表观病害智能检测平台</div>
+      </div>
+    </div>
+
+    <div class="topbar-center">
+      <a class="topbar-action {{ 'active' if active_top=='detect' else '' }}" href="/detect">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 7h16M4 12h10M4 17h16"/>
+        </svg>
+        <div>病害检测</div>
+      </a>
+      <a class="topbar-action {{ 'active' if active_top=='realtime' else '' }}" href="/realtime">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 20V4l16 8-16 8z"/>
+        </svg>
+        <div>实时监测</div>
+      </a>
+      <a class="topbar-action {{ 'active' if active_top=='results' else '' }}" href="/results">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 6h16"/>
+          <path d="M4 12h16"/>
+          <path d="M4 18h10"/>
+        </svg>
+        <div>检测结果</div>
+      </a>
+      <a class="topbar-action {{ 'active' if active_top=='analysis' else '' }}" href="/analysis">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19V5m6 14V9m6 10V3m6 16V7"/>
+        </svg>
+        <div>病害分析</div>
+      </a>
+      <a class="topbar-action {{ 'active' if active_top=='model' else '' }}" href="/model-info">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M7 7h10v10H7z"/>
+          <path d="M4 4h3M17 4h3M4 20h3M17 20h3"/>
+        </svg>
+        <div>模型信息</div>
+      </a>
+      <a class="topbar-action {{ 'active' if active_top=='reports' else '' }}" href="/reports">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 9V2h12v7"/>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+          <path d="M6 14h12v8H6z"/>
+        </svg>
+        <div>报告生成</div>
+      </a>
+    </div>
+
+    <div class="topbar-right">
+      <svg class="bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
+        <path d="M13.73 21a2 2 0 01-3.46 0"/>
+      </svg>
+      <div class="userbox">
+        <div class="avatar" aria-hidden="true"></div>
+        <a class="username" id="navUser" href="/history" style="display:none"></a>
+        <a class="link" id="navLogin" href="/login">登录</a>
+        <a class="link" id="navRegister" href="/register">注册</a>
+        <a class="link" id="navLogout" href="javascript:void(0)" style="display:none">退出</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+<div class="footer">桥梁表观病害智能检测平台 © 2026 钱途无量队</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="/static/js/ui.js"></script>
+<script src="/static/js/auth-nav.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
+

@@ -1,0 +1,1 @@
+{"model_id": "model2", "model_label": "model2", "original_url": "/uploads/738c3c142044.jpg", "image_url": "/results/738c3c142044_result.jpg", "result_url": "/results/738c3c142044_result.jpg", "mm_per_pixel": 4.0, "mm_per_pixel_source": "explicit", "detections": [], "stats": {}, "total": 0, "inference_ms": 120.0, "forward_ms": 127.0, "image_size": {"width": 4608, "height": 3456}}
