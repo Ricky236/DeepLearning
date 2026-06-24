@@ -868,6 +868,23 @@ PRINCIPLE_STATIC = {
 }
 
 
+def _repo_image_rel(path: Path) -> str:
+    """Path relative to Bridge/ (notebook directory) for Markdown img src."""
+    try:
+        rel = path.relative_to(ROOT).as_posix()
+    except ValueError:
+        return path.name
+    if rel.startswith("Bridge/"):
+        rel = rel[len("Bridge/") :]
+    return rel
+
+
+def _display_repo_image(path: Path, width: int = 960) -> None:
+    """Show image via Markdown path (renders on GitHub; avoids huge base64 outputs)."""
+    rel = _repo_image_rel(path)
+    display(Markdown(center_markdown(f'<img src="{rel}" width="{width}"/>')))
+
+
 def show_principle_diagram(
     key: str,
     caption: str = "",
@@ -875,16 +892,12 @@ def show_principle_diagram(
     title: str = "",
     width: int = 920,
 ):
-    from IPython.display import Image as IPImage
-
     path = PRINCIPLE_STATIC.get(key)
     if path is None:
         raise KeyError(f"未知图片 key: {key!r}")
     if not path.exists():
         raise FileNotFoundError(f"图片不存在: {path}\n请确认 {PRINCIPLE_SRC_DIR} 下文件齐全。")
-    display(HTML('<div align="center">'))
-    display(IPImage(filename=str(path.resolve()), width=width))
-    display(HTML("</div>"))
+    _display_repo_image(path, width=width)
     if fig_no is not None and title:
         display_figure_caption(fig_no, title)
     elif caption.strip():
