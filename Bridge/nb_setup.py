@@ -868,15 +868,40 @@ PRINCIPLE_STATIC = {
 }
 
 
+def _resolve_notebook_dir() -> Path:
+    """Directory of the active .ipynb (for Markdown image paths on GitHub/local)."""
+    cwd = Path.cwd().resolve()
+    root = ROOT.resolve()
+    if cwd == root:
+        return root
+    if cwd == root.parent and (cwd / "Bridge" / "app.py").exists():
+        return cwd
+    if (cwd / "Bridge" / "app.py").exists() and any(cwd.glob("课程设计*.ipynb")):
+        return cwd
+    if (cwd / "app.py").exists():
+        return cwd
+    return cwd
+
+
+NOTEBOOK_DIR = _resolve_notebook_dir()
+
+
 def _repo_image_rel(path: Path) -> str:
-    """Path relative to Bridge/ (notebook directory) for Markdown img src."""
+    """Markdown img src relative to the notebook directory."""
+    img = path.resolve()
+    nb_dir = NOTEBOOK_DIR.resolve()
     try:
-        rel = path.relative_to(ROOT).as_posix()
+        return img.relative_to(nb_dir).as_posix()
+    except ValueError:
+        pass
+    try:
+        return img.relative_to(ROOT.parent.resolve()).as_posix()
+    except ValueError:
+        pass
+    try:
+        return img.relative_to(ROOT).as_posix()
     except ValueError:
         return path.name
-    if rel.startswith("Bridge/"):
-        rel = rel[len("Bridge/") :]
-    return rel
 
 
 def _display_repo_image(path: Path, width: int = 960) -> None:
@@ -975,6 +1000,7 @@ def show_all_platform_pages(width: int = 960):
 
 
 print("项目根目录:", ROOT)
+print("Notebook 目录:", NOTEBOOK_DIR)
 print("DATA_DIR:", DATA_DIR, "存在:", DATA_DIR.is_dir())
 print("RESULT_DIR:", RESULT_DIR)
 print("图片目录:", PRINCIPLE_SRC_DIR, "存在:", PRINCIPLE_SRC_DIR.exists())
