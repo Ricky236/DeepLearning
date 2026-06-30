@@ -102,7 +102,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from IPython.display import HTML, Markdown, display
+from IPython.display import HTML, Image as IPyImage, Markdown, display
 from PIL import Image
 
 _CENTER_CSS = """
@@ -988,9 +988,10 @@ def _repo_image_rel(path: Path) -> str:
 
 
 def _display_repo_image(path: Path, width: int = 960) -> None:
-    """Show image via Markdown path (renders on GitHub; avoids huge base64 outputs)."""
-    rel = _repo_image_rel(path)
-    display(Markdown(center_markdown(f'<img src="{rel}" width="{width}"/>')))
+    """Embed image bytes in notebook output (renders on GitHub; avoids broken relative HTML paths)."""
+    if not path.is_file():
+        raise FileNotFoundError(f"图片不存在: {path}")
+    display(IPyImage(filename=str(path.resolve()), embed=True, width=width))
 
 
 def show_principle_diagram(
