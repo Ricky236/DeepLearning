@@ -988,10 +988,15 @@ def _repo_image_rel(path: Path) -> str:
 
 
 def _display_repo_image(path: Path, width: int = 960) -> None:
-    """Embed image bytes in notebook output (renders on GitHub; avoids broken relative HTML paths)."""
+    """Show repo images: Bridge notebook uses Markdown relative paths; root notebook embeds bytes."""
     if not path.is_file():
         raise FileNotFoundError(f"图片不存在: {path}")
-    display(IPyImage(filename=str(path.resolve()), embed=True, width=width))
+    rel = _repo_image_rel(path)
+    if NOTEBOOK_DIR.resolve() == ROOT.resolve():
+        # Bridge/课程设计*.ipynb — GitHub resolves ![](relative/path) against the .ipynb location.
+        display(Markdown(f"![{path.stem}]({rel})"))
+    else:
+        display(IPyImage(filename=str(path.resolve()), embed=True, width=width))
 
 
 def show_principle_diagram(
