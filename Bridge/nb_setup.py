@@ -287,6 +287,109 @@ if not DATA_DIR.is_dir():
 DATA_SPLITS = ["train", "valid", "test"]
 CLASS_IDS_CN = ["裂缝", "钢筋外露", "剥落", "破损", "白华"]
 _SEG_COLORS = ["#ef4444", "#3b82f6", "#facc15", "#8b5a2b", "#a855f7"]
+DATASET_STATS_CACHE = ROOT / "dataset_stats_cache.json"
+
+
+def _data_labels_available() -> bool:
+    return any((DATA_DIR / split / "labels").is_dir() for split in DATA_SPLITS)
+
+
+def _load_dataset_cache() -> dict | None:
+    if not DATASET_STATS_CACHE.is_file():
+        return None
+    try:
+        return json.loads(DATASET_STATS_CACHE.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None
+
+
+def _save_dataset_cache(
+    split_stats: dict,
+    class_counter: dict[str, int],
+    correlation_train: dict | None = None,
+) -> None:
+    payload = {
+        "description": "Auto-generated from data/; committed for GitHub notebook display",
+        "split_stats": split_stats,
+        "class_counter": class_counter,
+        "correlation_train": correlation_train,
+    }
+    DATASET_STATS_CACHE.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
+
+def _compute_dataset_stats_live(
+    splits: tuple[str, ...] = ("train", "valid", "test"),
+) -> tuple[dict, dict[str, int]]:
+    from collections import Counter
+
+    split_stats: dict[str, dict] = {}
+    overall: Counter[int] = Counter()
+    for split in splits:
+        lbl_dir = DATA_DIR / split / "labels"
+        if not lbl_dir.is_dir():
+            continue
+        per_class: Counter[int] = Counter()
+        n_images = 0
+        n_instances = 0
+        for lp in lbl_dir.rglob("*.txt"):
+            inst = parse_yolo_seg_label(lp.read_text(encoding="utf-8", errors="ignore"))
+            if not inst:
+                continue
+            n_images += 1
+            for cid, _ in inst:
+                per_class[cid] += 1
+                overall[cid] += 1
+                n_instances += 1
+        split_stats[split] = {
+            "images": n_images,
+            "instances": n_instances,
+            "per_class": {CLASS_IDS_CN[k]: v for k, v in sorted(per_class.items())},
+        }
+    class_counter = {CLASS_IDS_CN[k]: overall[k] for k in sorted(overall)}
+    return split_stats, class_counter
+
+
+def compute_dataset_stats(splits: tuple[str, ...] = ("train", "valid", "test")) -> tuple[dict, dict[str, int]]:
+    """Return per-split stats; scan data/ when present, else dataset_stats_cache.json."""
+    if _data_labels_available():
+        split_stats, class_counter = _compute_dataset_stats_live(splits)
+        if split_stats:
+            corr = _compute_correlation_live("train")
+            _save_dataset_cache(
+                split_stats,
+                class_counter,
+                corr.to_dict() if corr is not None else None,
+            )
+            return split_stats, class_counter
+    cache = _load_dataset_cache()
+    if cache and cache.get("split_stats") and cache.get("class_counter"):
+        print(
+            f"[dataset] data/ 不可用，使用缓存统计：{DATASET_STATS_CACHE.name}"
+        )
+        return cache["split_stats"], cache["class_counter"]
+    print("[dataset] 未找到 data/ 标注，且无 dataset_stats_cache.json")
+    return {}, {}
+
+
+def _compute_correlation_live(split: str = "train") -> pd.DataFrame | None:
+    lbl_dir = DATA_DIR / split / "labels"
+    if not lbl_dir.is_dir():
+        return None
+    rows: list[dict[str, int]] = []
+    for lp in lbl_dir.rglob("*.txt"):
+        inst = parse_yolo_seg_label(lp.read_text(encoding="utf-8", errors="ignore"))
+        if not inst:
+            continue
+        row = {cn: 0 for cn in CLASS_IDS_CN}
+        for cid, _ in inst:
+            row[CLASS_IDS_CN[cid]] += 1
+        rows.append(row)
+    if len(rows) < 3:
+        return None
+    return pd.DataFrame(rows).corr(numeric_only=True)
 
 
 def _label_image_path(label_path: Path) -> Path | None:
@@ -320,37 +423,6 @@ def parse_yolo_seg_label(text: str) -> list[tuple[int, list[float]]]:
             continue
         instances.append((cid, [float(x) for x in parts[1:]]))
     return instances
-
-
-def compute_dataset_stats(splits: tuple[str, ...] = ("train", "valid", "test")) -> tuple[dict, dict[str, int]]:
-    """Return per-split stats and overall class instance counts (Chinese labels)."""
-    from collections import Counter
-
-    split_stats: dict[str, dict] = {}
-    overall: Counter[int] = Counter()
-    for split in splits:
-        lbl_dir = DATA_DIR / split / "labels"
-        if not lbl_dir.is_dir():
-            continue
-        per_class: Counter[int] = Counter()
-        n_images = 0
-        n_instances = 0
-        for lp in lbl_dir.rglob("*.txt"):
-            inst = parse_yolo_seg_label(lp.read_text(encoding="utf-8", errors="ignore"))
-            if not inst:
-                continue
-            n_images += 1
-            for cid, _ in inst:
-                per_class[cid] += 1
-                overall[cid] += 1
-                n_instances += 1
-        split_stats[split] = {
-            "images": n_images,
-            "instances": n_instances,
-            "per_class": {CLASS_IDS_CN[k]: v for k, v in sorted(per_class.items())},
-        }
-    class_counter = {CLASS_IDS_CN[k]: overall[k] for k in sorted(overall)}
-    return split_stats, class_counter
 
 
 def pick_dataset_samples(split: str = "train", n_per_class: int = 1) -> list[tuple[Path, Path, int]]:
@@ -442,21 +514,15 @@ def show_dataset_samples(split: str = "train", fig_no: int | None = 1, fig_capti
 
 def dataset_class_correlation(split: str = "train") -> pd.DataFrame | None:
     """Per-image class instance counts -> Pearson correlation matrix."""
-    lbl_dir = DATA_DIR / split / "labels"
-    if not lbl_dir.is_dir():
-        return None
-    rows: list[dict[str, int]] = []
-    for lp in lbl_dir.rglob("*.txt"):
-        inst = parse_yolo_seg_label(lp.read_text(encoding="utf-8", errors="ignore"))
-        if not inst:
-            continue
-        row = {cn: 0 for cn in CLASS_IDS_CN}
-        for cid, _ in inst:
-            row[CLASS_IDS_CN[cid]] += 1
-        rows.append(row)
-    if len(rows) < 3:
-        return None
-    return pd.DataFrame(rows).corr(numeric_only=True)
+    if _data_labels_available():
+        corr = _compute_correlation_live(split)
+        if corr is not None:
+            return corr
+    cache = _load_dataset_cache()
+    corr_data = (cache or {}).get("correlation_train")
+    if corr_data:
+        return pd.DataFrame(corr_data)
+    return None
 
 
 def split_stats_dataframe(split_stats: dict) -> pd.DataFrame:
