@@ -78,5 +78,37 @@
       "破损": 0.103,
       "白华": 1.0
     }
-  }
+  },
+  "samples_preview": [
+    {
+      "class_id": 0,
+      "class_cn": "裂缝",
+      "image": "samples_preview/00_裂缝.jpg",
+      "source": "181d6e481a8f_result.jpg"
+    },
+    {
+      "class_id": 1,
+      "class_cn": "钢筋外露",
+      "image": "samples_preview/01_钢筋外露.jpg",
+      "source": "25d332bb41f0_result.jpg"
+    },
+    {
+      "class_id": 2,
+      "class_cn": "剥落",
+      "image": "samples_preview/02_剥落.jpg",
+      "source": "6cde13a504bc_result.jpg"
+    },
+    {
+      "class_id": 3,
+      "class_cn": "破损",
+      "image": "samples_preview/03_破损.jpg",
+      "source": "6a50e739fb17_result.jpg"
+    },
+    {
+      "class_id": 4,
+      "class_cn": "白华",
+      "image": "samples_preview/04_白华.jpg",
+      "source": "b2e9214d43ee_result.jpg"
+    }
+  ]
 }

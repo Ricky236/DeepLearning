@@ -353,7 +353,10 @@ def _compute_dataset_stats_live(
 
 
 def compute_dataset_stats(splits: tuple[str, ...] = ("train", "valid", "test")) -> tuple[dict, dict[str, int]]:
-    """Return per-split stats; scan data/ when present, else dataset_stats_cache.json."""
+    """Return per-split stats from dataset_stats_cache.json (no data/ scan)."""
+    cache = _load_dataset_cache()
+    if cache and cache.get("split_stats") and cache.get("class_counter"):
+        return cache["split_stats"], cache["class_counter"]
     if _data_labels_available():
         split_stats, class_counter = _compute_dataset_stats_live(splits)
         if split_stats:
@@ -364,13 +367,7 @@ def compute_dataset_stats(splits: tuple[str, ...] = ("train", "valid", "test")) 
                 corr.to_dict() if corr is not None else None,
             )
             return split_stats, class_counter
-    cache = _load_dataset_cache()
-    if cache and cache.get("split_stats") and cache.get("class_counter"):
-        print(
-            f"[dataset] data/ 不可用，使用缓存统计：{DATASET_STATS_CACHE.name}"
-        )
-        return cache["split_stats"], cache["class_counter"]
-    print("[dataset] 未找到 data/ 标注，且无 dataset_stats_cache.json")
+    print("[dataset] 未找到 dataset_stats_cache.json，且 data/ 不可用")
     return {}, {}
 
 
@@ -494,18 +491,38 @@ def draw_seg_on_axis(ax, img_path: Path, label_path: Path, title: str = "", high
     ax.axis("off")
 
 
-def show_dataset_samples(split: str = "train", fig_no: int | None = 1, fig_caption: str = "数据集样本：五类病害标注示意"):
-    samples = pick_dataset_samples(split=split, n_per_class=1)
-    if not samples:
-        print(f"未在 {DATA_DIR / split} 找到可用样本")
+def _cached_samples_preview() -> list[dict]:
+    """Load committed preview images for §4.2.1 (samples_preview/)."""
+    cache = _load_dataset_cache() or {}
+    previews = cache.get("samples_preview") or []
+    out: list[dict] = []
+    for item in previews:
+        rel = item.get("image", "")
+        path = ROOT / rel
+        if path.is_file():
+            out.append(item)
+    return sorted(out, key=lambda x: int(x.get("class_id", 0)))
+
+
+def show_dataset_samples(split: str = "train", fig_no: int | None = 1, fig_caption: str = "数据集样本：五类病害分割标注示意"):
+    previews = _cached_samples_preview()
+    if not previews:
+        print("未找到 samples_preview/ 缓存图片，请确认 dataset_stats_cache.json 与 samples_preview/ 已提交。")
         return
-    ncols = min(3, len(samples))
-    nrows = (len(samples) + ncols - 1) // ncols
+    ncols = min(3, len(previews))
+    nrows = (len(previews) + ncols - 1) // ncols
     fig, axes = plt.subplots(nrows, ncols, figsize=(4.5 * ncols, 4 * nrows))
     axes = np.array(axes).reshape(-1)
-    for ax, (img, lbl, cid) in zip(axes, samples):
-        draw_seg_on_axis(ax, img, lbl, CLASS_IDS_CN[cid], highlight_cid=cid)
-    for ax in axes[len(samples):]:
+    sub_fp = cjk_font(FIG_TITLE_FONT)
+    for ax, item in zip(axes, previews):
+        ax.imshow(Image.open(ROOT / item["image"]))
+        title = item.get("class_cn", "")
+        if sub_fp is not None:
+            ax.set_title(title, fontproperties=sub_fp, ha="center")
+        else:
+            ax.set_title(title, fontsize=FIG_TITLE_FONT, ha="center")
+        ax.axis("off")
+    for ax in axes[len(previews):]:
         ax.axis("off")
     if fig_no is not None and fig_caption:
         _register_fig_caption(fig, fig_no, fig_caption)
@@ -513,15 +530,15 @@ def show_dataset_samples(split: str = "train", fig_no: int | None = 1, fig_capti
 
 
 def dataset_class_correlation(split: str = "train") -> pd.DataFrame | None:
-    """Per-image class instance counts -> Pearson correlation matrix."""
-    if _data_labels_available():
-        corr = _compute_correlation_live(split)
-        if corr is not None:
-            return corr
+    """Pearson correlation matrix from dataset_stats_cache.json."""
     cache = _load_dataset_cache()
     corr_data = (cache or {}).get("correlation_train")
     if corr_data:
         return pd.DataFrame(corr_data)
+    if _data_labels_available():
+        corr = _compute_correlation_live(split)
+        if corr is not None:
+            return corr
     return None
 
 
